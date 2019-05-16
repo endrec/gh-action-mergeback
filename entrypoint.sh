@@ -1,3 +1,6 @@
+#!/bin/sh
+set -eu
+
 # ASH is magic...
 case $GITHUB_REF in
   */master) echo "We are on master, let's merge.";;
