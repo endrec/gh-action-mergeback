@@ -9,7 +9,7 @@ esac
 
 cat <<EOF | 
 {
-  "base": "develop",
+  "base": "${BASE_BRANCH:=develop}",
   "head": "master",
   "commit_message": "Merge back master"
 }
