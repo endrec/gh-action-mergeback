@@ -4,7 +4,7 @@ set -eu
 # ASH is magic...
 case $GITHUB_REF in
   */master) echo "We are on master, let's merge.";;
-         *) exit 1;;
+         *) echo "Not on master, do nothing."; exit 0;;
 esac
 
 cat <<EOF | 
