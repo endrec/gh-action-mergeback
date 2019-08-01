@@ -11,6 +11,8 @@ esac
 
 
 # Let's create a PR
+
+echo "Creating a PR..."
 payload=$(cat <<EOF 
 {
   "base": "${BASE_BRANCH:=develop}",
@@ -27,26 +29,22 @@ status_code=$(curl --silent -i --output /dev/stderr \
 	-d "${payload}")
 } 2>&1 )
 
-echo $output
 
-# Stop here for now
-exit 2
+if test ${status_code} -ne 201; then
+    echo "The merge has failed with status code ${status_code}"
+    echo $output
+    exit 1
+fi
 
-payload=$(cat <<EOF 
-{
-  "base": "${BASE_BRANCH:=develop}",
-  "head": "master",
-  "commit_message": "Merge back master"
-}
-EOF
-)
+echo "Merging PR..."
+
+pr_no=$(echo $output | jq -r '.number')
 
 output=$( { 
 status_code=$(curl --silent -i --output /dev/stderr \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
-	-X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/merges \
-	-d "${payload}")
+	-X PUT https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/merge )
 } 2>&1 )
 
 echo $output

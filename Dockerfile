@@ -1,6 +1,6 @@
 FROM alpine:3.9
 
-RUN apk add --no-cache curl bash
+RUN apk add --update --no-cache curl bash jq
 
 LABEL "com.github.actions.name"="Merge back"
 LABEL "com.github.actions.description"="Merge back master to develop"
