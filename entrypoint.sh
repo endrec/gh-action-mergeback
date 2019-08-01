@@ -23,7 +23,7 @@ output=$( {
 status_code=$(curl --silent -i --output /dev/stderr \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
-	-X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/merges \
+	-X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls \
 	-d "${payload}")
 } 2>&1 )
 
