@@ -35,7 +35,6 @@ if test ${status_code} -ne 201; then
     echo $output | jq
     exit 1
 fi
-echo $output
 echo "Merging PR..."
 pr_no=$(echo $output | jq -r '.number')
 echo ${pr_no}
@@ -60,7 +59,7 @@ if test ${status_code} -ne 200; then
 }
 EOF
 )
-    curl --silent \
+    curl --silent --output /dev/null --fail \
       -H "Authorization: token ${GITHUB_TOKEN}" \
       -H "Content-type: application/json" \
       -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
