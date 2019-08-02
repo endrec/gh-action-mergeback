@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-env | grep GITHUB
+# env | grep GITHUB
 
 # ASH is magic...
 case $GITHUB_REF in
@@ -37,7 +37,6 @@ if test ${status_code} -ne 201; then
 fi
 
 echo "Merging PR..."
-echo $output
 pr_no=$(echo $output | jq -r '.number')
 
 tmp=$(mktemp)
@@ -48,7 +47,6 @@ status_code=$(curl --silent -i --output ${tmp} \
 output=$(cat ${tmp})
 rm ${tmp}
 
-echo $output
 if test ${status_code} -ne 200; then
     echo "The merge has failed with status code ${status_code}"
     echo $output
@@ -62,7 +60,7 @@ EOF
 )
     curl --silent \
       -H "Authorization: token ${GITHUB_TOKEN}" \
-      -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers
+      -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
       -d "${payload}"
     exit 1
 fi
