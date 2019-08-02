@@ -37,7 +37,6 @@ if test ${status_code} -ne 201; then
 fi
 echo "Merging PR..."
 pr_no=$(echo $output | jq -r '.number')
-echo ${pr_no}
 
 tmp=$(mktemp)
 status_code=$(curl --silent --output ${tmp} \
