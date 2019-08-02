@@ -21,7 +21,7 @@ payload=$(cat <<EOF
 }
 EOF
 )
-tmp=$(tempfile)
+tmp=$(mktemp)
 status_code=$(curl --silent -i --output ${tmp} \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
@@ -39,7 +39,7 @@ fi
 echo "Merging PR..."
 
 pr_no=$(echo $output | jq -r '.number')
-tmp=$(tempfile)
+tmp=$(mktemp)
 status_code=$(curl --silent -i --output ${tmp} \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
