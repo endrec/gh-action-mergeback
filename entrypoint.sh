@@ -21,14 +21,14 @@ payload=$(cat <<EOF
 }
 EOF
 )
-output=$( { 
-status_code=$(curl --silent -i --output /dev/stderr \
+tmp=$(tempfile)
+status_code=$(curl --silent -i --output ${tmp} \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
 	-X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls \
 	-d "${payload}")
-} 2>&1 )
-
+output=$(cat ${tmp})
+rm ${tmp}
 
 if test ${status_code} -ne 201; then
     echo "The merge has failed with status code ${status_code}"
@@ -39,13 +39,13 @@ fi
 echo "Merging PR..."
 
 pr_no=$(echo $output | jq -r '.number')
-
-output=$( { 
-status_code=$(curl --silent -i --output /dev/stderr \
+tmp=$(tempfile)
+status_code=$(curl --silent -i --output ${tmp} \
 	--write-out "%{http_code}" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
 	-X PUT https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/merge )
-} 2>&1 )
+output=$(cat ${tmp})
+rm ${tmp}
 
 echo $output
 
