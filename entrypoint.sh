@@ -31,7 +31,7 @@ output=$(cat ${tmp})
 rm ${tmp}
 
 if test ${status_code} -ne 201; then
-    echo "The merge has failed with status code ${status_code}"
+    echo "Creating a PR has failed with status code ${status_code}"
     echo $output
     exit 1
 fi
@@ -47,9 +47,21 @@ status_code=$(curl --silent -i --output ${tmp} \
 output=$(cat ${tmp})
 rm ${tmp}
 
-echo $output
 
 if test ${status_code} -ne 200; then
     echo "The merge has failed with status code ${status_code}"
+    echo $output
+    payload=$(cat <<EOF 
+{
+  "reviewers": [
+    "$GITHUB_ACTOR"
+  ]
+}
+EOF
+)
+    curl --silent \
+      -H "Authorization: token ${GITHUB_TOKEN}" \
+      -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers
+      -d "${payload}"
     exit 1
 fi
