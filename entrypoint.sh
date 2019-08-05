@@ -61,7 +61,7 @@ if test ${status_code} -ne 200; then
 }
 EOF
 )
-		curl --silent --output /dev/null --fail \
+		curl --silent --fail \
 		  -H "Authorization: token ${GITHUB_TOKEN}" \
 		  -H "Content-type: application/json" \
 		  -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
