@@ -50,10 +50,11 @@ rm ${tmp}
 if test ${status_code} -ne 200; then
     echo "The merge has failed with status code ${status_code}"
     echo $output | jq
+	echo "Requesting review from ${GITHUB_ACTOR}"
     payload=$(cat <<EOF 
 {
   "reviewers": [
-    "$GITHUB_ACTOR"
+    "${GITHUB_ACTOR}"
   ]
 }
 EOF
