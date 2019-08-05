@@ -61,11 +61,13 @@ if test ${status_code} -ne 200; then
 }
 EOF
 )
-		curl --silent --fail \
+		echo "calling api..."
+		curl --silent \
 		  -H "Authorization: token ${GITHUB_TOKEN}" \
 		  -H "Content-type: application/json" \
 		  -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
 		  -d "${payload}"
+		echo "Exited: $?"
 	fi
 
 	echo "Requesting review from ${GITHUB_ACTOR}"
