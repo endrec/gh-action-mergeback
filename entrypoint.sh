@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-merge_instructions=.github/merge-instructions.md
+merge_instructions=${DESC_PATH:".github/merge-instructions.md"}
 
 # env | grep GITHUB
 
