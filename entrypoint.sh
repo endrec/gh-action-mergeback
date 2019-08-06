@@ -1,8 +1,6 @@
 #!/bin/bash
 set -eu
 
-merge_instructions=${DESC_PATH:".github/merge-instructions.md"}
-
 # env | grep GITHUB
 
 case $GITHUB_REF in
@@ -71,15 +69,19 @@ if test ${status_code} -ne 200; then
     echo "The merge has failed with status code ${status_code}"
     echo $output | jq
     
-    if [ -e ${merge_instructions} ] ; then
-        echo "Updating PR description..."
-        payload=$(jq -n --rawfile a ${merge_instructions} '.body=$a' | envsubst)
-        curl --silent --output /dev/null --fail \
-          -H "Authorization: token ${GITHUB_TOKEN}" \
-          -H "Content-type: application/json" \
-          -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
-          -d "${payload}"
+    if [ -e ${DESC_PATH:=".github/merge-instructions.md"} ] ; then
+        merge_instructions=${DESC_PATH}
+    else
+        merge_instructions='/default_description.md'
     fi
+    
+    echo "Updating PR description..."
+    payload=$(jq -n --rawfile a ${merge_instructions} '.body=$a' | envsubst)
+    curl --silent --output /dev/null --fail \
+      -H "Authorization: token ${GITHUB_TOKEN}" \
+      -H "Content-type: application/json" \
+      -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
+      -d "${payload}"
 
     echo "Requesting review from ${GITHUB_ACTOR}"
     payload=$(cat <<EOF 

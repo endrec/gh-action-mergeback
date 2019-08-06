@@ -12,4 +12,5 @@ LABEL "maintainer"="Endre Czirbesz <endre@czirbesz.hu>"
 RUN apk add --update --no-cache curl bash jq gettext
 
 ADD entrypoint.sh /entrypoint.sh
+ADD default_description.md /default_description.md
 ENTRYPOINT ["/entrypoint.sh"]
