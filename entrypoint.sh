@@ -32,14 +32,27 @@ status_code=$(curl --silent --output ${tmp} \
 output=$(cat ${tmp})
 rm ${tmp}
 
-if test ${status_code} -ne 201; then
+if test ${status_code} -eq 422; then #Existing PR
+	tmp=$(mktemp)
+	status_code=$(curl --silent --output ${tmp} \
+		--write-out "%{http_code}" \
+		-H "Authorization: token ${GITHUB_TOKEN}" \
+		-H "Content-type: application/json" \
+		-X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=master&base=${BASE_BRANCH}" )
+	output=$(cat ${tmp})
+	rm ${tmp}
+	echo $output | jq
+	pr_no=$(echo $output | jq -r '.[0].id')
+	echo $pr_no
+elif test ${status_code} -ne 201; then # Other failure
     echo "Creating a PR has failed with status code ${status_code}"
     echo $output | jq
     exit 1
+else
+    pr_no=$(echo $output | jq -r '.number')
 fi
-echo "Merging PR..."
-pr_no=$(echo $output | jq -r '.number')
 
+echo "Merging PR..."
 tmp=$(mktemp)
 status_code=$(curl --silent --output ${tmp} \
     --write-out "%{http_code}" \
