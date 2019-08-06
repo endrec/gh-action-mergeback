@@ -42,10 +42,13 @@ if test ${status_code} -eq 422; then #Existing PR
         -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=master&base=${BASE_BRANCH}" )
     output=$(cat ${tmp})
     rm ${tmp}
-    echo $status_code
-    echo $output | jq
+    if test ${status_code} -ne 200; then
+        echo "An error occured trying to find the existing PR, status code ${status_code}"
+        echo $output | jq
+        exit 1
+    fi
     pr_no=$(echo $output | jq -r '.[0].number')
-    echo $pr_no
+    echo "Found an existing PR (#${pr_no}), let's try and use that..."
 elif test ${status_code} -ne 201; then # Other failure
     echo "Creating a PR has failed with status code ${status_code}"
     echo $output | jq
