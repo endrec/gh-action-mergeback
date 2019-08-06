@@ -33,17 +33,19 @@ output=$(cat ${tmp})
 rm ${tmp}
 
 if test ${status_code} -eq 422; then #Existing PR
-	tmp=$(mktemp)
-	status_code=$(curl --silent --output ${tmp} \
-		--write-out "%{http_code}" \
-		-H "Authorization: token ${GITHUB_TOKEN}" \
-		-H "Content-type: application/json" \
-		-X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=master&base=${BASE_BRANCH}" )
-	output=$(cat ${tmp})
-	rm ${tmp}
-	echo $output | jq
-	pr_no=$(echo $output | jq -r '.[0].id')
-	echo $pr_no
+    echo "A PR already exists, let's find its number..."
+    tmp=$(mktemp)
+    status_code=$(curl --silent --output ${tmp} \
+        --write-out "%{http_code}" \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-type: application/json" \
+        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=master&base=${BASE_BRANCH}" )
+    output=$(cat ${tmp})
+    rm ${tmp}
+    echo $status_code
+    echo $output | jq
+    pr_no=$(echo $output | jq -r '.[0].number')
+    echo $pr_no
 elif test ${status_code} -ne 201; then # Other failure
     echo "Creating a PR has failed with status code ${status_code}"
     echo $output | jq
@@ -67,16 +69,16 @@ if test ${status_code} -ne 200; then
     echo $output | jq
     
     if [ -e ${merge_instructions} ] ; then
-		echo "Updating PR description..."
-		payload=$(jq -n --rawfile a ${merge_instructions} '.body=$a' | envsubst)
-		curl --silent --output /dev/null --fail \
-		  -H "Authorization: token ${GITHUB_TOKEN}" \
-		  -H "Content-type: application/json" \
-		  -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
-		  -d "${payload}"
-	fi
+        echo "Updating PR description..."
+        payload=$(jq -n --rawfile a ${merge_instructions} '.body=$a' | envsubst)
+        curl --silent --output /dev/null --fail \
+          -H "Authorization: token ${GITHUB_TOKEN}" \
+          -H "Content-type: application/json" \
+          -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
+          -d "${payload}"
+    fi
 
-	echo "Requesting review from ${GITHUB_ACTOR}"
+    echo "Requesting review from ${GITHUB_ACTOR}"
     payload=$(cat <<EOF 
 {
   "reviewers": [
