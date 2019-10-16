@@ -5,7 +5,7 @@ set -eu
 
 case $GITHUB_REF in
   */master) echo "We are on master, let's merge.";;
-         *) echo "Not on master, do nothing."; exit 0;;
+         *) echo "Not on master (${GITHUB_REF}), do nothing."; exit 0;;
 esac
 
 
