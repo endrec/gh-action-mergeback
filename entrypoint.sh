@@ -1,11 +1,13 @@
 #!/bin/bash
 set -eu
 
+TRUNK=${TRUNK_BRANCH:=master}
+
 # env | grep GITHUB
 
 case $GITHUB_REF in
-  */master) echo "We are on master, let's merge.";;
-         *) echo "Not on master (${GITHUB_REF}), do nothing."; exit 0;;
+  */"$TRUNK") echo "We are on $TRUNK, let's merge.";;
+         *) echo "Not on $TRUNK (${GITHUB_REF}), do nothing."; exit 0;;
 esac
 
 
@@ -15,8 +17,8 @@ echo "Creating a PR..."
 payload=$(cat <<EOF 
 {
   "base": "${BASE_BRANCH:=develop}",
-  "head": "master",
-  "title": "Merging back master"
+  "head": "${TRUNK}",
+  "title": "Merging back ${TRUNK}"
 }
 EOF
 )
@@ -37,7 +39,7 @@ if test ${status_code} -eq 422; then #Existing PR
         --write-out "%{http_code}" \
         -H "Authorization: token ${GITHUB_TOKEN}" \
         -H "Content-type: application/json" \
-        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=master&base=${BASE_BRANCH}" )
+        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TRUNK}&base=${BASE_BRANCH}" )
     output=$(cat ${tmp})
     rm ${tmp}
     if test ${status_code} -ne 200; then
